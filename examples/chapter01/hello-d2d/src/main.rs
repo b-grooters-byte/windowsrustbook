@@ -45,7 +45,6 @@ impl MainWindow {
         });
         let mut main_window = Box::new(MainWindow {
             handle: HWND(0),
-            target: None,
         });
         // create the window using Self reference
         let window = unsafe {
