@@ -107,12 +107,19 @@ The next line registers the windows class using the [```RegisterClassW```](https
 
 You can learn more about defining and registering windows classes with the [Microsoft API documentation](https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-registerclassw)
 
+Now that our windows class is registered, we create an instance of the ```MainWindow``` struct. For now the ```HWND``` is set to ```HWND(0)``` since we do not yet have a window handle.
+
 ``` rust
         let mut main_window = Box::new(MainWindow {
             handle: HWND(0),
-            target: None,
         });
 ```
+
+Creating a window is a single call to [```CreateWindowExW```](https://microsoft.github.io/windows-docs-rs/doc/windows/Win32/UI/WindowsAndMessaging/fn.CreateWindowExW.html). This is wrapped in an ```unsafe``` block as much of the windows crate API. We use a default style, the class name we previously declared and our title from the ```HSTRING``` constant.
+
+We us the ```WS_VISIBLE``` and ```WS_OVERLAPPED``` styles for a typical resizable top-level window with a title bar and minimize, maximize and close buttons. The next set of parameters are the location and size. ```CS_USEDEFAULT``` instructs the API to use default settings here for location and we set the size to a width of 400 and a height of 300. You can change these to other values if you would like or use ```CW_USEDEFAULT``` for width and height.
+
+The next 2 parameters are the parent window handle and menu handle. We set these both to ```(0)``` since this is a top-level window without a parent and we do not have a menu. The ```HINSTANCE``` is next followed by a parameter that needs a bit of explanation:
 
 ``` rust
         // create the window using Self reference
