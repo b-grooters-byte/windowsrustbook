@@ -18,5 +18,22 @@ version = "0.42"
 We will use some basic foundational windows crate features for every Win32 application in this book so we will need to add those to the cargo file. Under the ```version = 0.42"``` that you just added, add the following features:
 
 ``` toml
+features = [
+    "Win32_Foundation",
+    "Win32_Graphics_Direct2D",
+    "Win32_Graphics_Gdi",
+    "Win32_UI_WindowsAndMessaging",
+    "Win32_System_LibraryLoader"
+]
 
 ```
+
+Under the ```src``` path open the ```main.rs``` file. We are going to start with a minimal Win32 application and explain the basics before we add the Direct2D rendering.
+
+We need to create a struct that will represent our window
+``` rust
+pub struct MainWindow {
+        handle: HWND,
+}
+```
+We are only going to store the HWND for now so this is the only field in the structure. It will be a private field since no functions outside the ```MainWindow``` implementation will need to access it.
