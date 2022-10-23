@@ -1,0 +1,6 @@
+[book]
+authors = ["ByteTrail"]
+language = "en"
+multilingual = false
+src = "src"
+title = "Windows Direct2D Development with Rust"
