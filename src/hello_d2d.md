@@ -190,3 +190,23 @@ The windows procedure or ```wnd_proc``` is the main message loop for a window cl
 
 The associated function signature matches the required signature for a [WNDPROC](https://learn.microsoft.com/en-us/windows/win32/api/winuser/nc-winuser-wndproc) in Rust. The Microsoft documentation covers the parameters in detail if you are unfamiliar with the ```WNDPROC``` callback.
 
+The implementation of our ```wnd_proc``` function has one primary responsibility; to extract the instance pointer to our instance of ```MainWindow``` as a mutable reference and dispatch messages to an instance specific method that takes ```&mut self```. We will add that implementation to ```wnd_proc```:
+
+``` rust
+        if message == WM_CREATE {
+            let create_struct = lparam.0 as *const CREATESTRUCTA;
+            let this = (*create_struct).lpCreateParams as *mut Self;
+            (*this).handle = window;
+            SetWindowLongPtrA(window, GWLP_USERDATA, this as _);
+        } else {
+            let this = GetWindowLongPtrA(window, GWLP_USERDATA) as *mut Self;
+
+            if !this.is_null() {
+                return (*this).message_handler(message, wparam, lparam);
+            }
+        }
+        DefWindowProcW(window, message, wparam, lparam)
+
+```
+
+In the CreateWindowExW description, remember that we added a pointer to an instance of ```MainWindow```? Here we need to extract that pointer and set it in the ```GWLP_USERDATA``` area so that it is available on on all subsequent windows messages. This is what the ```if message == WM_CREATE``` block does when it calls [```SetWindowLongPtrA```]()
