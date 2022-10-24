@@ -54,13 +54,13 @@ const WINDOW_TITLE: &HSTRING = w!("Hello!");
 
 These constants are defined as references to ```HSTRING```s. The ```w!``` macro is used to convert a ```'static &str``` to a ```&HSTRING```. We use HSTRING constants here because they will be needed when we register our windows class and give it a window title.
 
-We define a static instance of a Once synchronization primitive at the top of the file, typically just before or after your consts. This will be used when we register the window class below :
+We define a static instance of a ```Once``` synchronization primitive at the top of the file, typically just before or after your consts. This will be used when we register the window class below :
 
 ``` rust 
 static REGISTER_WINDOW_CLASS: Once = Once::new();
 ```
 
-Lets start with the new method for our MainWindow. The signature of the new method may look a little strange if you have not used [```Box```](https://doc.rust-lang.org/std/boxed/struct.Box.html) before. We are using a ```Box```ed return type because we will need a heap allocated instance of the MainWindow later. 
+Lets start with the new method for our MainWindow. The signature of the new method may look a little strange if you have not used [```Box```](https://doc.rust-lang.org/std/boxed/struct.Box.html) before. We are using a ```Box```ed return type because we will need a heap allocated instance of the ```MainWindow``` later. 
 
 The first thing we need do is get an instance handle that we will use when we create the window with the ```CreateWindowExW``` Win32 function:
 
@@ -72,6 +72,7 @@ The first thing we need do is get an instance handle that we will use when we cr
 Next we register the windows class. This is done with a [```Once```](https://doc.rust-lang.org/std/sync/struct.Once.html) synchronization primative so that the windows class is registered only one time in the application no matter how many times new is called. Within the closure of ```call_once``` we define a windows class and register it
 
 ```rust 
+...
         // synchronization for a one time initialization of FFI call
         REGISTER_WINDOW_CLASS.call_once(|| {
             // use defaults for all other fields
@@ -122,7 +123,7 @@ We us the ```WS_VISIBLE``` and ```WS_OVERLAPPED``` styles for a typical resizabl
 The next 2 parameters are the parent window handle and menu handle. We set these both to ```(0)``` since this is a top-level window without a parent and we do not have a menu. The ```HINSTANCE``` is next followed by a parameter that needs a bit of explanation:
 
 ``` rust
-        // create the window using Self reference
+   ...
         let window = unsafe {
             CreateWindowExW(
                 WINDOW_EX_STYLE::default(),
@@ -144,3 +145,12 @@ The next 2 parameters are the parent window handle and menu handle. We set these
     }
 ```
 
+The last parameter is an ```LPVOID``` in the Windows SDK which is defined as ```Option<*const c_void>``` in the windows crate. Since ```Box``` is used to allocate data on the heap in Rust it is possible to cast it to the appropriate type. We use type inference to perform the cast from a reference to the boxed type. A similar type cast could be done with :
+```rust 
+Box::into_raw(main_window) as _
+```
+This would; however, take ownership of the ```main_window``` and it would not be available to return from the new method after the ```ShowWindow``` function.
+
+We want to pass the Box as an ```LPVOID``` so that it is available in the ```wnd_proc``` later when we receive the ```WM_CREATE``` message. This is a pointer to the instance of ```MainWindow``` that allows us to refence ```self``` for all subsequent windows messages. The Microsoft documentation for [CreateWindowExW](https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-createwindowexw) explains that the lpParam paramter is passed to the window through the [CREATESTRUCT](https://learn.microsoft.com/en-us/windows/win32/api/winuser/ns-winuser-createstructa) and is available as the ```LPARAM``` in the ```WM_CREATE``` message.
+
+Now that we have the new method out of the way we will move on to the ```wnd_proc``` method we referenced in the ```WNDCLASSW```
