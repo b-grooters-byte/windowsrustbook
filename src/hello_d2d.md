@@ -65,7 +65,15 @@ static REGISTER_WINDOW_CLASS: Once = Once::new();
 ```
 
 ## MainWindow Implementation
+The following sections describe the methods and associated functions we need to define in the ```MainWindow``` implementation to get a basic Win32 application window before we move on to the Direct2D methods.
 
+``` rust
+impl MainWindow {
+ ...
+}
+```
+
+Each of the following methods or associated functions is defined in the ```MainWindow``` implementation.
 
 ### Registering and Creating
 
@@ -164,6 +172,21 @@ We want to pass the Box as an ```LPVOID``` so that it is available in the ```wnd
 
 That seems like a lot to create and show a window. You know that if you have done Win32 development in the past that it is all pretty much boilerplate and you will have very similar methods for all of your struct implementations for windows in Rust.
 
- Now that we have the new method out of the way we will move on to the ```wnd_proc``` method we referenced in the ```WNDCLASSW```
+ Now that we have the new method out of the way we will move on to the ```wnd_proc``` method we referenced in the ```WNDCLASSW```struct.
 
  ### wnd_proc
+
+The windows procedure or ```wnd_proc``` is the main message loop for a window class. It is important to remember that there is one ```wnd_proc``` per windows class not per windows instance. You will see how we route messages to a specific instance of a window class below.
+
+``` rust
+   unsafe extern "system" fn wnd_proc(
+        window: HWND, message: u32, wparam: WPARAM,lparam: LPARAM,
+    ) -> LRESULT {
+        ...
+    }
+```
+
+```wnd_proc``` is an [associated function](https://doc.rust-lang.org/rust-by-example/fn/methods.html) declared with the ```unsafe``` and [```extern```](https://doc.rust-lang.org/std/keyword.extern.html) keywords. The string in quotes after the ```extern``` keyword indicates the ABI to use. In this case it is [```extern "system"```](https://doc.rust-lang.org/reference/items/external-blocks.html) so that the associated function is exported with the ```stdcall``` ABI rather than the C ABI. 
+
+The associated function signature matches the required signature for a [WNDPROC](https://learn.microsoft.com/en-us/windows/win32/api/winuser/nc-winuser-wndproc) in Rust. The Microsoft documentation covers the parameters in detail if you are unfamiliar with the ```WNDPROC``` callback.
+
