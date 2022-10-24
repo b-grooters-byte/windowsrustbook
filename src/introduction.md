@@ -15,11 +15,18 @@ This book is for anyone that wants to start developing Direct2D applications wit
 This book assumes that you have a basic understanding of Rust. If this is not the case, we recommend [The Rust Programming Language](https://doc.rust-lang.org/stable/book/). For a more in depth understanding of Rust, we recommend [Rust for Rustaceans](https://rust-for-rustaceans.com/) 
 
 ## How this book is organized
-The book is in 2 parts. Part I is an introduction to various aspects of Direct2D and Win32 API; basic drawing, DirectWrite, and animation.
+The book is in 2 parts. 
 
-Part 2 combines all of the concepts in part 1 into a fully functioning Direct2D implementation of the Windows classic Minesweeper game.
+* Part I is an introduction to various aspects of Direct2D and Win32 API; basic drawing, DirectWrite, and animation.
 
+* Part 2 combines all of the concepts in part 1 into a fully functioning Direct2D implementation of the Windows classic Minesweeper game.
 
 ## Source Code
+
+All the source code examples used in this book are available on [GitHub](https://github.com/bytetrail/windowsrustbook) along with the source to the book.
+
+VS Code was used to develop the examples with the [rust-analyzer](https://code.visualstudio.com/docs/languages/rust) plugin. We do not decribe the [use](https://doc.rust-lang.org/std/keyword.use.html) imports in the book and in almost all cases the rust-analyzer plugin can be used to resolve the required imports.
+
+Along with rust-analyzer we like the [Better TOML](https://marketplace.visualstudio.com/items?itemName=bungcip.better-toml) plugin for editing ```Cargo.toml``` files.
 
 ## License

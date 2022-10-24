@@ -2,6 +2,8 @@
 
 We are going to develop a simple static view for our first Direct2D application. This application is similar to the [Quick Start](https://learn.microsoft.com/en-us/windows/win32/direct2d/getting-started-with-direct2d) application in the Microsoft Windows Getting Started with Direct2D tutorial.
 
+## The Project
+
 Lets start by creating new Rust project:
 
 ```cargo new hello_d2d```
@@ -28,6 +30,8 @@ features = [
 
 ```
 
+## MainWindow
+
 Under the ```src``` path open the ```main.rs``` file. We are going to start with a minimal Win32 application and explain the basics before we add the Direct2D rendering.
 
 We need to create a struct that will represent our window
@@ -52,13 +56,18 @@ const WINDOW_CLASSNAME: &HSTRING = w!("bytetrail.rustd2d.hello");
 const WINDOW_TITLE: &HSTRING = w!("Hello!");
 ```
 
-These constants are defined as references to ```HSTRING```s. The ```w!``` macro is used to convert a ```'static &str``` to a ```&HSTRING```. We use HSTRING constants here because they will be needed when we register our windows class and give it a window title.
+These constants are defined as references to ```HSTRING```s. The ```w!``` macro is used to convert a ```'static &str``` to a ```&HSTRING```. We use HSTRING constants here because they will be needed when we register our windows class and give it a title.
 
-We define a static instance of a ```Once``` synchronization primitive at the top of the file, typically just before or after your consts. This will be used when we register the window class below :
+We define a static instance of a  [```Once```](https://doc.rust-lang.org/std/sync/struct.Once.html) synchronization primitive at the top of the file, typically just before or after your consts. This will be used when we register the window class below :
 
 ``` rust 
 static REGISTER_WINDOW_CLASS: Once = Once::new();
 ```
+
+## MainWindow Implementation
+
+
+### Registering and Creating
 
 Lets start with the new method for our MainWindow. The signature of the new method may look a little strange if you have not used [```Box```](https://doc.rust-lang.org/std/boxed/struct.Box.html) before. We are using a ```Box```ed return type because we will need a heap allocated instance of the ```MainWindow``` later. 
 
@@ -89,7 +98,7 @@ Next we register the windows class. This is done with a [```Once```](https://doc
         });
 ```
 
-If you are completely new to Win32 development there is a lot to unpack there. Inside the ```call_once()``` closure we are calling [```WNDCLASSW```](https://microsoft.github.io/windows-docs-rs/doc/windows/Win32/UI/WindowsAndMessaging/struct.WNDCLASSW.html) with the required parameters. The ```lpfnWndProc``` field points to a method in our ```MainWindow``` class that we have not written yet. 
+If you are completely new to Win32 development there is a lot to unpack there. Inside the ```call_once()``` closure we are creating a [```WNDCLASSW```](https://microsoft.github.io/windows-docs-rs/doc/windows/Win32/UI/WindowsAndMessaging/struct.WNDCLASSW.html) with the required parameters. The ```lpfnWndProc``` field points to a method in our ```MainWindow``` class that we have not written yet. 
 
 Next we set the background brush. The Win32 API defines a number of standard colors that are available through the windows crate although we have to do some casting to get them to the type we want. 
 
@@ -153,4 +162,8 @@ This would; however, take ownership of the ```main_window``` and it would not be
 
 We want to pass the Box as an ```LPVOID``` so that it is available in the ```wnd_proc``` later when we receive the ```WM_CREATE``` message. This is a pointer to the instance of ```MainWindow``` that allows us to refence ```self``` for all subsequent windows messages. The Microsoft documentation for [CreateWindowExW](https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-createwindowexw) explains that the lpParam paramter is passed to the window through the [CREATESTRUCT](https://learn.microsoft.com/en-us/windows/win32/api/winuser/ns-winuser-createstructa) and is available as the ```LPARAM``` in the ```WM_CREATE``` message.
 
-Now that we have the new method out of the way we will move on to the ```wnd_proc``` method we referenced in the ```WNDCLASSW```
+That seems like a lot to create and show a window. You know that if you have done Win32 development in the past that it is all pretty much boilerplate and you will have very similar methods for all of your struct implementations for windows in Rust.
+
+ Now that we have the new method out of the way we will move on to the ```wnd_proc``` method we referenced in the ```WNDCLASSW```
+
+ ### wnd_proc
