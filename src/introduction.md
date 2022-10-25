@@ -25,8 +25,11 @@ The book is in 2 parts.
 
 All the source code examples used in this book are available on [GitHub](https://github.com/bytetrail/windowsrustbook) along with the source to the book.
 
-VS Code was used to develop the examples with the [rust-analyzer](https://code.visualstudio.com/docs/languages/rust) plugin. We do not decribe the [use](https://doc.rust-lang.org/std/keyword.use.html) imports in the book and in almost all cases the rust-analyzer plugin can be used to resolve the required imports.
+VS Code was used to develop the examples with the [rust-analyzer](https://code.visualstudio.com/docs/languages/rust) plugin. We do not decribe the [use](https://doc.rust-lang.org/std/keyword.use.html) imports in the book and in almost all cases the rust-analyzer plugin can be used to resolve the required imports. There are some cases where we were unable to resolve an import with Rust analyzer such as the ```windows::core::Result``` import; however, these are infrequent and can typically be looked up in the ```windows-rs``` crate doccumentation.
 
 Along with rust-analyzer we like the [Better TOML](https://marketplace.visualstudio.com/items?itemName=bungcip.better-toml) plugin for editing ```Cargo.toml``` files.
 
 ## License
+The book is covered under the [Creative Commons Attribution 4.0 International](https://creativecommons.org/licenses/by/4.0/) license.
+
+The source code examples and code snippets included in the book from the examples are covered under the [MIT License](https://github.com/bytetrail/windowsrustbook/tree/main/examples)
