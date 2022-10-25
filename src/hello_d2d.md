@@ -53,7 +53,7 @@ We will need a couple of constants to register our new window class so lets go a
 
 ``` rust
 const WINDOW_CLASSNAME: &HSTRING = w!("bytetrail.rustd2d.hello");
-const WINDOW_TITLE: &HSTRING = w!("Hello!");
+const WINDOW_TITLE: &HSTRING = w!("Hello, Direct2D!");
 ```
 
 These constants are defined as references to ```HSTRING```s. The ```w!``` macro is used to convert a ```'static &str``` to a ```&HSTRING```. We use HSTRING constants here because they will be needed when we register our windows class and give it a title.
@@ -174,7 +174,7 @@ That seems like a lot to create and show a window. You know that if you have don
 
  Now that we have the new method out of the way we will move on to the ```wnd_proc``` method we referenced in the ```WNDCLASSW```struct.
 
- ### wnd_proc
+ ### Message Handling
 
 The windows procedure or ```wnd_proc``` is the main message loop for a window class. It is important to remember that there is one ```wnd_proc``` per windows class not per windows instance. You will see how we route messages to a specific instance of a window class below.
 
@@ -211,7 +211,7 @@ The implementation of our ```wnd_proc``` function has one primary responsibility
 
 In the CreateWindowExW description, remember that we added a pointer to an instance of ```MainWindow``` in the ```CreateWindowExW``` function call? Here we need to extract that pointer and set it in the ```GWLP_USERDATA``` so that it is available on on all subsequent windows messages. This is what the ```if message == WM_CREATE``` block does when it calls ```SetWindowLongPtrA```. 
 
-For more information please reeview the [windows crate](https://microsoft.github.io/windows-docs-rs/doc/windows/Win32/UI/WindowsAndMessaging/fn.SetWindowLongA.html) and [WIN32](https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-setwindowlongptra) documentation.
+For more information please review the [windows crate](https://microsoft.github.io/windows-docs-rs/doc/windows/Win32/UI/WindowsAndMessaging/fn.SetWindowLongA.html) and [WIN32](https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-setwindowlongptra) documentation.
 
 We use the corresponding ```GetWindowLongPtrA``` function to get the pointer to an instance of ```MainWindow``` on all other windows messages in the ```else``` block. We use the dereference operator to call the instance specific message handler method. Now we need to write our message handler.
 
@@ -220,3 +220,58 @@ We use the corresponding ```GetWindowLongPtrA``` function to get the pointer to 
         ...
     }
 ```
+
+The message handler is a ```MainWindow``` method with a ```&mut self``` receiver. The WIN32 message ID, ```WPARAM```, and ```LPARAM``` are passed. ```WPARAM``` and ```LPARAM``` typically have message specific values and you will see how we leverage these in future chapters. For now though we are just going to handle the ```WM_DESTROY``` message so that we can close the application when the window is closed. Add the following implementation to ```message_handler```:
+
+``` rust 
+        match message {
+            WM_DESTROY => {
+                unsafe { PostQuitMessage(0) };
+                LRESULT(0)            }
+            _ => unsafe { DefWindowProcW(self.handle, message, wparam, lparam) },
+        }
+```
+We are only handling the ```WM_DESTROY``` message here. For all others we are deferring to the ```DefWindowProcW``` handler. The [```WM_DESTROY```](https://learn.microsoft.com/en-us/windows/win32/winmsg/wm-destroy) message is typically sent to our window when the user clicks on the close window button or presses ALT-F4 when the window is in focus.
+
+We call ```PostQuitMessage(0)``` in response to the ```WM_DESTROY``` message. This sends a ```WM_QUIT``` message to the application message queue. 
+
+See the [windows-rs](https://microsoft.github.io/windows-docs-rs/doc/windows/Win32/UI/WindowsAndMessaging/fn.DefWindowProcW.html) and [WIN32](https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-defwindowprocw) documentation for more details on DefWindowProcW.
+
+We have not written the application message handler so lets do that now.
+
+### Application Loop
+
+We need our main function to act as the windows application entry point and handle the application messages. We are going to change the function signature to return a [```windows::core::Result```](https://microsoft.github.io/windows-docs-rs/doc/windows/core/type.Result.html) and construct an instance of our ```MainWindow```:
+
+``` rust
+fn main() -> Result<()>{
+    let _window = MainWindow::new()?;
+    let mut message = MSG::default();
+    unsafe {
+        while GetMessageW(&mut message, HWND(0), 0, 0).into() {
+            DispatchMessageW(&message);
+        }
+    }
+    Ok(())
+}
+```
+
+We are not really doing anything with the ```MainWindow``` ```window``` variable so we preface it with an ```_```. You cannot replace this with just an ```_``` variable due to how Rust handles these 2 cases. A variable preceded with an ```_``` like:
+``` rust
+    let _window = MainWindow::new()?;
+```
+results in a value being bound to the variable, which we need. An ```_``` variable will result in the returned value being discarded without being bound to a variable. If we had used this:
+``` rust
+    let _ = MainWindow::new()?;
+```
+instead of ```_window``` then the instance of ```MainWindow``` would not be availalbe for the remainder of the application.
+
+Next in the code listing we create a ```MSG``` instance and start processing messages with ```GetMessageW``` and ```DispatchMessageW```. 
+
+If everything went right and you have a project with all the code entered from the last few sections you should be able to run with
+```
+cargo run
+```
+from the project path and see the window:
+
+![Hello Direct2D Screen Capture](./images/chapter_01/hello_screenshot.png)

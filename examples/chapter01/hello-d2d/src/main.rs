@@ -20,7 +20,7 @@ use windows::{
 
 static REGISTER_WINDOW_CLASS: Once = Once::new();
 const WINDOW_CLASSNAME: &HSTRING = w!("bytetrail.rustd2d.hello");
-const WINDOW_TITLE: &HSTRING = w!("Hello!");
+const WINDOW_TITLE: &HSTRING = w!("Hello, Direct2D!");
 
 pub struct MainWindow {
     handle: HWND,
