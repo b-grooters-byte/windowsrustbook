@@ -13,7 +13,7 @@ use windows::{
             CreateWindowExW, DefWindowProcW, GetWindowLongPtrA, LoadCursorW, RegisterClassW,
             SetWindowLongPtrA, ShowWindow, CREATESTRUCTA, CS_HREDRAW, CS_VREDRAW, CW_USEDEFAULT,
             GWLP_USERDATA, HMENU, IDC_ARROW, SW_SHOW, WINDOW_EX_STYLE, WM_CREATE, WNDCLASSW,
-            WS_OVERLAPPEDWINDOW, WS_VISIBLE, MSG, GetMessageW, DispatchMessageW,
+            WS_OVERLAPPEDWINDOW, WS_VISIBLE, MSG, GetMessageW, DispatchMessageW, WM_DESTROY, PostQuitMessage,
         },
     },
 };
@@ -70,6 +70,9 @@ impl MainWindow {
 
     fn message_handler(&mut self, message: u32, wparam: WPARAM, lparam: LPARAM) -> LRESULT {
         match message {
+            WM_DESTROY => {
+                unsafe { PostQuitMessage(0) };
+                LRESULT(0)            }
             _ => unsafe { DefWindowProcW(self.handle, message, wparam, lparam) },
         }
     }

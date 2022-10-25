@@ -209,4 +209,14 @@ The implementation of our ```wnd_proc``` function has one primary responsibility
 
 ```
 
-In the CreateWindowExW description, remember that we added a pointer to an instance of ```MainWindow```? Here we need to extract that pointer and set it in the ```GWLP_USERDATA``` area so that it is available on on all subsequent windows messages. This is what the ```if message == WM_CREATE``` block does when it calls [```SetWindowLongPtrA```]()
+In the CreateWindowExW description, remember that we added a pointer to an instance of ```MainWindow``` in the ```CreateWindowExW``` function call? Here we need to extract that pointer and set it in the ```GWLP_USERDATA``` so that it is available on on all subsequent windows messages. This is what the ```if message == WM_CREATE``` block does when it calls ```SetWindowLongPtrA```. 
+
+For more information please reeview the [windows crate](https://microsoft.github.io/windows-docs-rs/doc/windows/Win32/UI/WindowsAndMessaging/fn.SetWindowLongA.html) and [WIN32](https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-setwindowlongptra) documentation.
+
+We use the corresponding ```GetWindowLongPtrA``` function to get the pointer to an instance of ```MainWindow``` on all other windows messages in the ```else``` block. We use the dereference operator to call the instance specific message handler method. Now we need to write our message handler.
+
+``` rust
+    fn message_handler(&mut self, message: u32, wparam: WPARAM, lparam: LPARAM) -> LRESULT {
+        ...
+    }
+```
