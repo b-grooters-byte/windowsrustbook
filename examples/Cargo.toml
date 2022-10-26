@@ -1,7 +1,5 @@
 [workspace]
-name = "examples"
-version = "0.1.0"
-edition = "2021"
+
 
 members = [
     "chapter01/hello-d2d"

@@ -1,3 +1,5 @@
+mod direct2d;
+
 use std::sync::Once;
 use windows::{
     core::{Result, HSTRING},
@@ -5,15 +7,16 @@ use windows::{
     Win32::{
         Foundation::{HINSTANCE, HWND, LPARAM, LRESULT, WPARAM},
         Graphics::{
-            Direct2D::ID2D1HwndRenderTarget,
+            Direct2D::{ID2D1Factory1, ID2D1HwndRenderTarget},
             Gdi::{COLOR_WINDOW, HBRUSH},
         },
         System::LibraryLoader::GetModuleHandleW,
         UI::WindowsAndMessaging::{
-            CreateWindowExW, DefWindowProcW, GetWindowLongPtrA, LoadCursorW, RegisterClassW,
-            SetWindowLongPtrA, ShowWindow, CREATESTRUCTA, CS_HREDRAW, CS_VREDRAW, CW_USEDEFAULT,
-            GWLP_USERDATA, HMENU, IDC_ARROW, SW_SHOW, WINDOW_EX_STYLE, WM_CREATE, WNDCLASSW,
-            WS_OVERLAPPEDWINDOW, WS_VISIBLE, MSG, GetMessageW, DispatchMessageW, WM_DESTROY, PostQuitMessage,
+            CreateWindowExW, DefWindowProcW, DispatchMessageW, GetMessageW, GetWindowLongPtrA,
+            LoadCursorW, PostQuitMessage, RegisterClassW, SetWindowLongPtrA, ShowWindow,
+            CREATESTRUCTA, CS_HREDRAW, CS_VREDRAW, CW_USEDEFAULT, GWLP_USERDATA, HMENU, IDC_ARROW,
+            MSG, SW_SHOW, WINDOW_EX_STYLE, WM_CREATE, WM_DESTROY, WNDCLASSW, WS_OVERLAPPEDWINDOW,
+            WS_VISIBLE,
         },
     },
 };
@@ -22,12 +25,13 @@ static REGISTER_WINDOW_CLASS: Once = Once::new();
 const WINDOW_CLASSNAME: &HSTRING = w!("bytetrail.rustd2d.hello");
 const WINDOW_TITLE: &HSTRING = w!("Hello, Direct2D!");
 
-pub struct MainWindow {
+pub struct MainWindow<'a> {
     handle: HWND,
+    factory: &'a ID2D1Factory1,
 }
 
-impl MainWindow {
-    pub fn new() -> Result<Box<Self>> {
+impl<'a> MainWindow<'a> {
+    pub fn new(factory: &'a ID2D1Factory1) -> Result<Box<Self>> {
         let instance = unsafe { GetModuleHandleW(None)? };
         // synchronization for a one time initialization of FFI call
         REGISTER_WINDOW_CLASS.call_once(|| {
@@ -45,6 +49,7 @@ impl MainWindow {
         });
         let mut main_window = Box::new(MainWindow {
             handle: HWND(0),
+            factory,
         });
 
         // create the window using Self reference
@@ -72,7 +77,8 @@ impl MainWindow {
         match message {
             WM_DESTROY => {
                 unsafe { PostQuitMessage(0) };
-                LRESULT(0)            }
+                LRESULT(0)
+            }
             _ => unsafe { DefWindowProcW(self.handle, message, wparam, lparam) },
         }
     }
@@ -100,8 +106,9 @@ impl MainWindow {
     }
 }
 
-fn main() -> Result<()>{
-    let _window = MainWindow::new()?;
+fn main() -> Result<()> {
+    let factory = direct2d::create_factory()?;
+    let _window = MainWindow::new(&factory)?;
     let mut message = MSG::default();
     unsafe {
         while GetMessageW(&mut message, HWND(0), 0, 0).into() {

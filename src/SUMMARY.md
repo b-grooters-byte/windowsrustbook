@@ -6,6 +6,8 @@
 
 - [Getting Started](./chapter_1.md)
   - [Hello, Direct2D](./hello_d2d.md)
+    - [Basic App](./hello_basic.md)
+    - [Adding Drawing](./hello_draw.md)
 - [Drawing Basics](./chapter_2.md)
 - [Geometries](./chapter_3.md)
 - [Bitmaps](./chapter_4.md)
