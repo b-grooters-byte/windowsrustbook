@@ -1,6 +1,10 @@
 # Hello, Direct2D
 
-We are going to develop a simple static view for our first Direct2D application. This application is similar to the [Quick Start](https://learn.microsoft.com/en-us/windows/win32/direct2d/getting-started-with-direct2d) application in the Microsoft Windows Getting Started with Direct2D tutorial.
+We are going to develop a simple static view for our first Direct2D application. This chapter will cover all of the Rust, WIN32, and Direct2D concepts necessary to get a basic application functional. We will explain each section rather than just show a working application and save the explanations for later chapters. 
+
+When we are done with this basic application you will have a simple Rust crate that you can use and build on in future chapters for Direct2D and a WIN32 starter project for Direct2D.
+
+This application is similar to the [Quick Start](https://learn.microsoft.com/en-us/windows/win32/direct2d/getting-started-with-direct2d) application in the Microsoft Windows Getting Started with Direct2D tutorial.
 
 ## The Project
 
