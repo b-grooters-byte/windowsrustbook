@@ -29,13 +29,10 @@ We will use some basic foundational windows crate features for every Win32 appli
 ``` toml
 features = [
     "Win32_Foundation",
-    "Win32_Graphics_Direct2D",
-    "Win32_Graphics_Gdi",
     "Win32_UI_WindowsAndMessaging",
     "Win32_System_LibraryLoader"
 ]
 
 ```
-
 
 Next, we will move on  to the basic WIN32 application code.
